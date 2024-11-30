@@ -1,4 +1,5 @@
 const express = require("express");
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const router = express.Router();
@@ -7,47 +8,67 @@ const router = express.Router();
 router.post("/signup", async (req, res) => {
   const { username, password } = req.body;
 
-  // Check if user already exists
-  let user = await User.findOne({ username });
-  if (user) {
-    return res.status(400).json({ msg: "User already exists" });
+  if (!username || !password) {
+    return res.status(400).json({ msg: "All fields are required" });
   }
 
- 
+  try {
+    // Check if user already exists
+    let user = await User.findOne({ username });
+    if (user) {
+      return res.status(400).json({ msg: "User already exists" });
+    }
 
-  // Create a new user with the plain password (no hashing)
-  user = new User({
-    username,
-    password,  // Store the plain password (no hashing)
-  });
+    // Hash the password before saving
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-  // Save the user to the database
-  await user.save();
-  res.status(201).json({ msg: "User registered successfully" });
+    // Create a new user
+    user = new User({
+      username,
+      password: hashedPassword,
+    });
+
+    // Save the user to the database
+    await user.save();
+    res.status(201).json({ msg: "User registered successfully" });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ msg: "Server error" });
+  }
 });
 
 // Login route
 router.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
-  // Find the user by username
-  let user = await User.findOne({ username });
-  if (!user) {
-    return res.status(400).json({ msg: "Invalid credentials" });
+  if (!username || !password) {
+    return res.status(400).json({ msg: "All fields are required" });
   }
 
-  
-  // Compare the entered password with the stored plain password
-  if (password !== user.password) {
-    return res.status(400).json({ msg: "Invalid credentials" });
+  try {
+    // Find the user by username
+    let user = await User.findOne({ username });
+    if (!user) {
+      return res.status(400).json({ msg: "Invalid credentials" });
+    }
+
+    // Compare the entered password with the hashed password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ msg: "Invalid credentials" });
+    }
+
+    // If the password matches, generate JWT
+    const payload = { user: { id: user.id } };
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1h" });
+
+    // Send back the token
+    res.json({ token });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ msg: "Server error" });
   }
-
-  // If the password matches, generate JWT
-  const payload = { user: { id: user.id } };
-  const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-  // Send back the token
-  res.json({ token });
 });
 
 module.exports = router;

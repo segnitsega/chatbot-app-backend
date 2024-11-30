@@ -1,9 +1,9 @@
-// server.js
+
 const express = require("express");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/auth");
-const chatRoutes = require("./routes/chat");
+const chatRoutes = require("./routes/chatRoutes");  // Updated chat routes
 const cors = require("cors");
 
 dotenv.config();
