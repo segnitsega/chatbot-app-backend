@@ -1,11 +1,21 @@
 const express = require("express");
 const Chat = require("../models/Chat");
 const authMiddleware = require("../middleware/auth");
-const axios = require("axios"); // Import axios for making HTTP requests
+const OpenAI = require("openai"); // Import OpenAI SDK
 const router = express.Router();
 
-// The Gemini API Key, make sure it's stored securely (e.g., in .env file)
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+// Load GROK API Key from environment variable
+const GROK_API_KEY = process.env.GROK_API_KEY;
+
+if (!GROK_API_KEY) {
+  throw new Error("The GROK_API_KEY environment variable is missing or empty. Please add it to your .env file.");
+}
+
+// Initialize OpenAI client with GROK API Key
+const openai = new OpenAI({
+  apiKey: GROK_API_KEY,
+  baseURL: "https://api.x.ai/v1", // Set Grok API's base URL
+});
 
 router.post("/send", authMiddleware, async (req, res) => {
   const { message } = req.body;
@@ -15,29 +25,17 @@ router.post("/send", authMiddleware, async (req, res) => {
   }
 
   try {
-    // Call Gemini API to get a response
-    const response = await axios.post(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        contents: [
-          {
-            parts: [
-              {
-                text: message, // The message sent by the user
-              },
-            ],
-          },
-        ],
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    // Call xAI (Grok) API to generate a response
+    const response = await openai.chat.completions.create({
+      model: "grok-beta", // Grok's model
+      messages: [
+        { role: "system", content: "You are Grok, a chatbot inspired by the Hitchhiker's Guide to the Galaxy." },
+        { role: "user", content: message }, // User's input message
+      ],
+    });
 
-    // Extract the response from Gemini
-    const botResponse = response.data.contents[0].parts[0].text;
+    // Extract the bot's response
+    const botResponse = response.choices[0].message.content;
 
     // Save the chat to the database
     const chat = new Chat({
@@ -51,7 +49,7 @@ router.post("/send", authMiddleware, async (req, res) => {
     res.json({ response: botResponse }); // Send bot response back to client
   } catch (error) {
     console.error(error.message);
-    console.error('Error details:', error.response ? error.response.data : error);
+    console.error("Error details:", error.response ? error.response.data : error);
     res.status(500).json({ msg: "Server error" });
   }
 });
