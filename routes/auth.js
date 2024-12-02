@@ -38,38 +38,7 @@ router.post("/signup", async (req, res) => {
   }
 });
 
-// // Login route
-// router.post("/login", async (req, res) => {
-//   const { username, password } = req.body;
 
-//   if (!username || !password) {
-//     return res.status(400).json({ msg: "All fields are required" });
-//   }
-
-//   try {
-//     // Find the user by username
-//     let user = await User.findOne({ username });
-//     if (!user) {
-//       return res.status(400).json({ msg: "Invalid credentials" });
-//     }
-
-//     // Compare the entered password with the hashed password
-//     const isMatch = await bcrypt.compare(password, user.password);
-//     if (!isMatch) {
-//       return res.status(400).json({ msg: "Invalid credentials" });
-//     }
-
-//     // If the password matches, generate JWT
-//     const payload = { user: { id: user.id } };
-//     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1h" });
-
-//     // Send back the token
-//     res.json({ token });
-//   } catch (error) {
-//     console.error(error.message);
-//     res.status(500).json({ msg: "Server error" });
-//   }
-// });
 
 // Login route
 router.post("/login", async (req, res) => {
