@@ -6,17 +6,41 @@ const router = express.Router();
 
 // Signup route
 router.post("/signup", async (req, res) => {
-  const { username, password } = req.body;
+  const { username, email, password } = req.body;
 
-  if (!username || !password) {
+  //check for missing fields
+  if (!username ||!email || !password) {
     return res.status(400).json({ msg: "All fields are required" });
   }
 
+  // Validate username length
+  if (username.length < 4) {
+    return res.status(400).json({ msg: "Username must be at least 4 characters long" });
+  }
+
+  // Validate password length
+  if (password.length < 8) {
+    return res.status(400).json({ msg: "Password must be at least 8 characters long" });
+  }
+
+  // Validate email format
+  const emailRegex = /^\S+@\S+\.\S+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ msg: "Invalid email format" });
+  }
+
+
   try {
     // Check if user already exists
-    let user = await User.findOne({ username });
-    if (user) {
-      return res.status(400).json({ msg: "User already exists" });
+    // let user = await User.findOne({ username });
+    // if (user) {
+    //   return res.status(400).json({ msg: "User already exists" });
+    // }
+
+    // Check if user already exists with the same username or email
+    let existingUser = await User.findOne({ $or: [{ username }, { email }] });
+    if (existingUser) {
+      return res.status(400).json({ msg: "User with this username or email already exists" });
     }
 
     // Hash the password before saving
@@ -24,8 +48,9 @@ router.post("/signup", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     // Create a new user
-    user = new User({
+    const user = new User({
       username,
+      email,
       password: hashedPassword,
     });
 
