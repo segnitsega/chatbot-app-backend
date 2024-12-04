@@ -1,5 +1,3 @@
-
-
 require("dotenv").config();
 
 const express = require("express");
@@ -10,6 +8,7 @@ const chatRoutes = require("./routes/chatRoutes");
 const chatController = require('./controllers/chatController');
 const session = require("express-session");
 const passport = require("passport");
+const googleAuthRoutes = require('./routes/googleAuth');
 
 const { router: authController } = require("./controllers/authController"); // Correctly import the router
 
@@ -23,31 +22,12 @@ dotenv.config();
 // Initialize app
 const app = express();
 
-// Use the auth routes with the desired prefix
-app.use("/api/auth", authController); 
-
 // Connect to the database
 connectDB();
 
 // Middleware
 app.use(express.json());
 app.use(cors());
-
-// Define the new route for the chat endpoint
-app.post('/api/chat', chatController.chatWithAI);
-
-// Routes
-app.use("/api/auth", authRoutes);  // Signup and Login routes
-app.use("/api/chat", chatRoutes);  // Chat-related routes
-
-// Check if OPENAI_API_KEY is set in the environment
-console.log("GROK API Key:", process.env.GROK_API_KEY); // Debug log
-
-// Start server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
 
 // Configure express-session
 app.use(
@@ -62,3 +42,27 @@ app.use(
 // Initialize Passport
 app.use(passport.initialize());
 app.use(passport.session());
+
+// Routes
+app.use('/api/auth', googleAuthRoutes);
+app.use("/api/auth", authController); // OAuth routes
+app.use("/api/auth", authRoutes);  // Signup and Login routes
+app.use("/api/chat", chatRoutes);  // Chat-related routes
+
+// Define the new route for the chat endpoint
+app.post('/api/chat', chatController.chatWithAI);
+
+// Start server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
+
+
+// // Check if OPENAI_API_KEY is set in the environment
+// console.log("GROK API Key:", process.env.GROK_API_KEY); // Debug log
+
+
+
+
