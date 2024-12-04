@@ -112,26 +112,8 @@ const router = express.Router();
 
 
 const signup = async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, password } = req.body;
 
-  // Input validation
-  if (!username || !email || !password) {
-    return res.status(400).json({ message: "All fields are required." });
-  }
-
-  if (username.length < 4) {
-    return res.status(400).json({ message: "Username must be at least 4 characters." });
-  }
-
-  if (password.length < 8) {
-    return res.status(400).json({ message: "Password must be at least 8 characters." });
-  }
-
-  // Check if email is valid
-  const emailRegex = /^\S+@\S+\.\S+$/;
-  if (!emailRegex.test(email)) {
-    return res.status(400).json({ message: "Invalid email address." });
-  }
 
   try {
     let user = await User.findOne({ username });

@@ -8,7 +8,6 @@ const chatRoutes = require("./routes/chatRoutes");
 const chatController = require('./controllers/chatController');
 const session = require("express-session");
 const passport = require("passport");
-const googleAuthRoutes = require('./routes/googleAuth');
 
 const { router: authController } = require("./controllers/authController"); // Correctly import the router
 
@@ -39,12 +38,11 @@ app.use(
   })
 );
 
-// Initialize Passport
-app.use(passport.initialize());
-app.use(passport.session());
+// // Initialize Passport
+// app.use(passport.initialize());
+// app.use(passport.session());
 
 // Routes
-app.use('/api/auth', googleAuthRoutes);
 app.use("/api/auth", authController); // OAuth routes
 app.use("/api/auth", authRoutes);  // Signup and Login routes
 app.use("/api/chat", chatRoutes);  // Chat-related routes
