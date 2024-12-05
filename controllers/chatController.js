@@ -1,9 +1,9 @@
 
 const axios = require('axios');
-const Chat = require('../models/Chat'); // If you're storing chat messages
+const Chat = require('../models/Chat'); 
 
 // Grok API Key
-const GROK_API_KEY = process.env.GEMINI_API_KEY || 'your-grok-api-key'; // Use the actual key from .env or fallback to default
+const GROK_API_KEY = process.env.GEMINI_API_KEY || 'your-grok-api-key'; 
 
 // Controller to handle the chat request and get AI response
 exports.chatWithAI = async (req, res) => {
@@ -16,11 +16,10 @@ exports.chatWithAI = async (req, res) => {
   
       // Send the message to the Grok API
       const response = await axios.post(
-        'https://api.x.ai/v1', // Replace with the actual Grok API endpoint
-        // https://api.x.ai/v1/chat/completions
+        'https://api.x.ai/v1',
         {
-          prompt: userMessage, // Send the message as the prompt
-          max_tokens: 150, // Adjust based on the API response limits
+          prompt: userMessage, 
+          max_tokens: 150, 
         },
         {
           headers: {
@@ -30,24 +29,21 @@ exports.chatWithAI = async (req, res) => {
         }
       );
   
-      // Check if the response contains the expected data
       if (response.data && response.data.text) {
-        const aiResponse = response.data.text; // Adjust this based on the actual response format from Grok
-  
-        // Optionally, store the conversation in the database
+        const aiResponse = response.data.text; 
+
         await Chat.create({
           message: userMessage,
           response: aiResponse,
         });
   
-        // Send AI response back to the frontend
         res.json({ message: aiResponse });
       } else {
         throw new Error('Grok API response did not contain expected data');
       }
   
     } catch (error) {
-      // Improved error logging
+      
       if (error.response) {
         console.error('Error interacting with Grok API:', error.response.data);
       } else {

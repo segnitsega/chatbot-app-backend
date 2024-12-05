@@ -38,14 +38,12 @@ app.use(
   })
 );
 
-// // Initialize Passport
-// app.use(passport.initialize());
-// app.use(passport.session());
+
 
 // Routes
-app.use("/api/auth", authController); // OAuth routes
-app.use("/api/auth", authRoutes);  // Signup and Login routes
-app.use("/api/chat", chatRoutes);  // Chat-related routes
+app.use("/api/auth", authController); 
+app.use("/api/auth", authRoutes);  
+app.use("/api/chat", chatRoutes);  
 
 // Define the new route for the chat endpoint
 app.post('/api/chat', chatController.chatWithAI);
@@ -56,10 +54,6 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-
-
-// // Check if OPENAI_API_KEY is set in the environment
-// console.log("GROK API Key:", process.env.GROK_API_KEY); // Debug log
 
 
 
