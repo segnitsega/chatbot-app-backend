@@ -47,13 +47,14 @@ This is the backend for the **Generative AI Chatbot App**, handling user authent
     POST /chat: Send user messages and get AI responses.
 
 ## Project Structure
- ```bash
+    ```bash
         src/
         ├── models/          # Mongoose schemas
         ├── routes/          # API route handlers
         ├── controllers/     # Logic for API endpoints
         ├── middlewares/     # Authentication and validation middlewares
         └── server.js        # Entry point
-## Project Frontend:
 
-# https://github.com/segnitsega/chatbot-app.git
+Project Frontend:
+
+https://github.com/segnitsega/chatbot-app.git
