@@ -55,6 +55,6 @@ This is the backend for the **Generative AI Chatbot App**, handling user authent
         ├── middlewares/     # Authentication and validation middlewares
         └── server.js        # Entry point
 
-Project Frontend:
+# Project Frontend:
 
 https://github.com/segnitsega/chatbot-app.git
